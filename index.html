@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Word Example</title>
+</head>
+<body>
+    <h1>Send Word Example</h1>
+    <!-- A simple button that sends a POST request to the "/send" endpoint -->
+    <button onclick="click_button()">Click Me!</button>
+
+
+    <script>
+        async function click_button() {
+            try {
+                // Send a POST request to the server endpoint
+                const response = await fetch('/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Send the word "example" as JSON data
+                    body: JSON.stringify({ button: 'pressed' })
+                });
+
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error('Failed to send word');
+                }
+
+                // Log the response from the server
+                console.log(await response.text());
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
