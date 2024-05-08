@@ -1,0 +1,11 @@
+# content of .cargo/config
+[build]
+target = ["x86_64-unknown-linux-gnu", "arm-unknown-linux-gnueabihf"]
+
+# for raspberry pi 1/zero
+# get from https://github.com/abhiTronix/raspberry-pi-cross-compilers#-toolchain-downloads
+[target.arm-unknown-linux-gnueabihf]
+linker = "/home/lroesel/.toolchains/cross-pi-gcc-10.3.0-0/bin/arm-linux-gnueabihf-gcc"
+rustflags = [
+    "-C", "link-arg=--sysroot=/home/lroesel/.toolchains/cross-pi-gcc-10.3.0-0/arm-linux-gnueabihf/libc"
+]
