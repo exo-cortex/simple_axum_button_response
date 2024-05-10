@@ -6,19 +6,17 @@
     <title>Send Word Example</title>
 </head>
 <body>
-    <h1>Send Word Example</h1>
+    <h1>click me button</h1>
     <!-- A simple button that sends a POST request to the "/send" endpoint -->
-    <button onclick="click_button()">Click Me!</button>
+    <button onclick="click_button_camera()">shoot a picture!</button>
+    <button onclick="click_button('clickedy_clack')">Click Me!</button>
     
     <div style="align-content: center;">
-        <img src="img/example.jpg" alt="bild von libcamera-still" width="640" height="480">        
+        <img src="img/example.jpg" alt="bild von libcamera-still" width="640px" height="480px">
     </div>
 
     <script>
-        var newImage = new Image();
-        newImage.src = "img/example.jpg";
-
-        async function click_button() {
+        async function click_button_camera() {
             try {
                 // Send a POST request to the server endpoint
                 const response = await fetch('/send', {
@@ -27,7 +25,31 @@
                         'Content-Type': 'application/json'
                     },
                     // Send the word "example" as JSON data
-                    body: JSON.stringify({ button: 'pressed' })
+                    body: JSON.stringify({ signal: 'camera_button_pressed' })
+                });
+
+                // Check if the request was successful
+                if (!response.ok) {
+                    throw new Error('Failed to send word');
+                }
+
+                // Log the response from the server
+                console.log(await response.text());
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function click_button(button_signal) {
+            try {
+                // Send a POST request to the server endpoint
+                const response = await fetch('/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Send the word "example" as JSON data
+                    body: JSON.stringify({ signal: button_signal })
                 });
 
                 // Check if the request was successful
