@@ -7,7 +7,7 @@ fn default_portnumber() -> u32 {
 #[derive(FromArgs)]
 /// Setup
 pub struct Arguments {
-    /// folder of `index.html`
+    /// path to `index.html`
     #[argh(
         option,
         short = 'f',

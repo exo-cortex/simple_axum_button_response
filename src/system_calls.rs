@@ -6,13 +6,13 @@ use chrono::Utc;
 
 const CAMERA_MODES: [(u16, u16); 4] = [(640, 480), (1296, 972), (1920, 1080), (2592, 1944)];
 
-pub fn update_image() -> String {
+pub fn update_image(quality: u8) -> String {
     let now = Utc::now();
 
     println!("{}", now.format("%Y_%m_%d-%H%M%S taking new impage"));
     // let filename = format!("test_{}", now.time());
 
-    let (width, height) = CAMERA_MODES[3];
+    let (width, height) = CAMERA_MODES[1];
 
     let output = Command::new("libcamera-still")
         .current_dir("/home/nt_user/webserver/img/")
@@ -21,6 +21,7 @@ pub fn update_image() -> String {
             "-t 50", // timeout value in ms
             &format!("--width={}", width),
             &format!("--height={}", height),
+            &format!("-q{}", quality),
             "-oexample.jpg", // only works correctly without spaces
         ])
         .output()

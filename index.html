@@ -3,29 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Word Example</title>
+    <title>lalalatitle</title>
 </head>
 <body>
-    <h1>click me button</h1>
-    <!-- A simple button that sends a POST request to the "/send" endpoint -->
-    <button onclick="click_button_camera()">shoot a picture!</button>
-    <button onclick="click_button('clickedy_clack')">Click Me!</button>
+    <div style="text-align: center;">
+        <div style="width: 720px; margin: 0 auto; background: #F0F0F0; color: red">
+            <h1>Test: client->server->gpio test</h1>
+            <!-- A simple button that sends a POST request to the "/send" endpoint -->
+            <div style="padding: 0.5em">
+                <button style="padding: 0.5em" onclick="click_button_camera('good')">take a picture!</button>
+            </div>
+            <div style="padding: 0.5em">
+                <button style="padding: 0.5em" onclick="click_button_camera('shitty')">take a (shitty) picture!</button>
+            </div>
+            [ please refresh with <b>Ctrl+F5</b> ]<br>
+            <div style="padding: 0.5em">
+                <button style="padding: 0.5em" onclick="send_led_signal('off')">switch off LED</button>
+                <button style="padding: 0.5em" onclick="send_led_signal('on')">switch on LED</button>
+                <button style="padding: 0.5em" onclick="send_led_signal('blink_equal_250')">blink LED!</button>
+                <button style="padding: 0.5em" onclick="send_led_signal('blink_equal_100')">blink LED fast!</button>    
+            </div>
+            <div style="align-content: center;">
+                <img src="img/example.jpg" alt="bild von libcamera-still" width="640px" height="480px">
+            </div>
+        </div>
     
-    <div style="align-content: center;">
-        <img src="img/example.jpg" alt="bild von libcamera-still" width="640px" height="480px">
     </div>
 
     <script>
-        async function click_button_camera() {
+        async function click_button_camera(image_quality) {
             try {
                 // Send a POST request to the server endpoint
-                const response = await fetch('/send', {
+                const response = await fetch('/send_camera', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     // Send the word "example" as JSON data
-                    body: JSON.stringify({ signal: 'camera_button_pressed' })
+                    body: JSON.stringify({ camera_signal: image_quality })
                 });
 
                 // Check if the request was successful
@@ -40,16 +55,16 @@
             }
         }
 
-        async function click_button(button_signal) {
+        async function send_led_signal(led_signal) {
             try {
                 // Send a POST request to the server endpoint
-                const response = await fetch('/send', {
+                const response = await fetch('/send_led', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     // Send the word "example" as JSON data
-                    body: JSON.stringify({ signal: button_signal })
+                    body: JSON.stringify({ led_signal: led_signal })
                 });
 
                 // Check if the request was successful

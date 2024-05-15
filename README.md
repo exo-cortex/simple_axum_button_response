@@ -8,3 +8,4 @@ Cross-compilation files can be found [here](https://github.com/abhiTronix/raspbe
 - the website contains a button that triggers a server-side event ✔
 - use the Raspberry Pis GPIO to make a sound
 - make the button trigger the sound on the Raspberry Pi
+

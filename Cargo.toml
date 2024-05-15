@@ -13,7 +13,7 @@ rppal = "0.17.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.116"
 tokio = { version = "1", features = ["full"] }
-tower-http = { verion = "0.4", features = ["fs"] }
+tower-http = { version = "0.5.2", features = ["fs"] }
 
 [profile.release]
 lto = true
