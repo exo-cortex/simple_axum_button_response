@@ -3,81 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>lalalatitle</title>
+    <link rel="shortcut icon" href="/favicon.svg">
+    <script src="main.js" type="text/javascript"></script>
+    <title>remote control buzzer</title>
 </head>
+
 <body>
     <div style="text-align: center;">
-        <div style="width: 720px; margin: 0 auto; background: #F0F0F0; color: red">
-            <h1>Test: client->server->gpio test</h1>
+        <div style="width: 720px; margin: 0 auto; background: #F0F0F0"> 
+            <h1>Test: client→server→gpio</h1>
             <!-- A simple button that sends a POST request to the "/send" endpoint -->
+            
             <div style="padding: 0.5em">
                 <button style="padding: 0.5em" onclick="click_button_camera('good')">take a picture!</button>
-            </div>
-            <div style="padding: 0.5em">
                 <button style="padding: 0.5em" onclick="click_button_camera('shitty')">take a (shitty) picture!</button>
+                <button style="padding: 0.5em" onclick="click_button_buzzer('short')">wake up Lukas</button>
+                <button style="padding: 0.5em" onclick="click_button_buzzer('double')">wake up Lukas in a more funny way</button>
+            </div>
+            
+            <div id="camera_status" style="background: #bbb; width:fit-content; padding: 0.2em; margin: 0.2em; border-radius: 0.2em;">
+                <b>status:</b> not in use
             </div>
             [ please refresh with <b>Ctrl+F5</b> ]<br>
+            
             <div style="padding: 0.5em">
-                <button style="padding: 0.5em" onclick="send_led_signal('off')">switch off LED</button>
-                <button style="padding: 0.5em" onclick="send_led_signal('on')">switch on LED</button>
-                <button style="padding: 0.5em" onclick="send_led_signal('blink_equal_250')">blink LED!</button>
-                <button style="padding: 0.5em" onclick="send_led_signal('blink_equal_100')">blink LED fast!</button>    
+                <h1>Red LED</h1>
+                <button id="button_led_off" style="padding: 0.5em" onclick="send_led_signal('led', 'off')">switch off red LED</button>
+                <button id="button_led_on" style="padding: 0.5em" onclick="send_led_signal('led', 'on')">switch on red LED</button>
+                <button id="button_led_blink_equal_250" style="padding: 0.5em" onclick="send_led_signal('led', 'blink_equal_250')">blink red LED</button>
             </div>
+            
+            <div style="padding: 0.5em">
+                <h1>Green LED (hardware pwm)</h1>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'off')">switch off</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'on')">switch on</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'half')">dimm to 50%</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'blink_equal_250')">blink</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'breath')">breath mode</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'breath_linear')">breath mode (linear)</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'rising_sawtooth')">sawtooth mode</button>
+                <button class="led_button" onclick="send_led_signal('pwm_led', 'rising_sawtooth_linear')">sawtooch mode (linear)</button>
+
+            </div>
+            
+            <button id="button_led_off" style="padding: 0.5em" onclick="poll_status()">poll /status</button>
+
             <div style="align-content: center;">
                 <img src="img/example.jpg" alt="bild von libcamera-still" width="640px" height="480px">
             </div>
-        </div>
-    
+
+            <div style="padding: 0.25em; text-align: left; height:fit-content; background: #E0E0E0;">
+                version 0.0.0
+            </div>
+        </div>    
     </div>
 
-    <script>
-        async function click_button_camera(image_quality) {
-            try {
-                // Send a POST request to the server endpoint
-                const response = await fetch('/send_camera', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    // Send the word "example" as JSON data
-                    body: JSON.stringify({ camera_signal: image_quality })
-                });
 
-                // Check if the request was successful
-                if (!response.ok) {
-                    throw new Error('Failed to send word');
-                }
-
-                // Log the response from the server
-                console.log(await response.text());
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function send_led_signal(led_signal) {
-            try {
-                // Send a POST request to the server endpoint
-                const response = await fetch('/send_led', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    // Send the word "example" as JSON data
-                    body: JSON.stringify({ led_signal: led_signal })
-                });
-
-                // Check if the request was successful
-                if (!response.ok) {
-                    throw new Error('Failed to send word');
-                }
-
-                // Log the response from the server
-                console.log(await response.text());
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-    </script>
 </body>
 </html>
