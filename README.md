@@ -1,4 +1,4 @@
-Simple website with a button that sends a post request to a backend server in axum that handles the request
+A simple website with buttons that activate a buzzer connected to a raspberry pi which is running a webserver.
 
 Cross-compilation files can be found [here](https://github.com/abhiTronix/raspberry-pi-cross-compilers#-toolchain-downloads)
 
@@ -6,6 +6,9 @@ Cross-compilation files can be found [here](https://github.com/abhiTronix/raspbe
 - host a website ✔
 - host it on a Raspberry Pi Zero ✔
 - the website contains a button that triggers a server-side event ✔
-- use the Raspberry Pis GPIO to make a sound
-- make the button trigger the sound on the Raspberry Pi
+- use the Raspberry Pis GPIO to make a sound ✔
+- make the button trigger the sound on the Raspberry Pi ✔
 
+# todo
+- enable https
+- use websockets to communicate the state of the buzzer and remove client-side polling

@@ -1,65 +1,82 @@
+use std::{net::SocketAddr, path::PathBuf, sync::Arc};
+
 use {
     axum::{
-        routing::{get_service, post},
-        Router,
+        extract::{connect_info::ConnectInfo, State},
+        response::IntoResponse,
+        routing::{get, get_service, post},
+        Json, Router,
     },
-    tokio::net::TcpListener,
+    serde::Serialize,
+    tokio::{net::TcpListener, sync::Mutex},
     tower_http::services::ServeDir,
 };
 
-use std::{
-    path::PathBuf,
-    sync::mpsc::{channel, Sender},
-    thread,
-};
-
 mod args;
-mod camera_handler;
-mod led_handler;
-mod system_calls;
+mod buzzer;
 
-use crate::args::Arguments; // commandline arguments
-use crate::camera_handler::camera_signals_handler;
-use crate::led_handler::{drive_led, led_signals_handler, LedMode};
-
-// #[derive(Debug)]
+use crate::{args::Arguments, buzzer::buzzer_signals_handler};
 
 #[derive(Clone)]
 pub struct AppState {
-    pub sender: Sender<LedMode>,
+    // maybe replace this by a semaphore
+    pub buzzer_resource_lock: Arc<Mutex<()>>,
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
     let args: Arguments = argh::from_env();
     let html_directory = PathBuf::from(args.html_folder);
 
-    // maybe `sync_channel` (with back-pressure) instead?
-    let (led_control_sender, led_control_receiver) = channel::<LedMode>();
-
-    thread::spawn(move || drive_led(led_control_receiver));
-    // spawn thread handling camera and making sure not too many images are taken
-
     let shared_state = AppState {
-        sender: led_control_sender,
+        buzzer_resource_lock: Arc::new(Mutex::new(())),
     };
 
+    // setup router
     let app = Router::new()
-        .route("/send_camera", post(camera_signals_handler))
-        .route("/send_led", post(led_signals_handler))
+        .route("/send_buzzer", post(buzzer_signals_handler))
+        .route("/status", get(status_response))
         .fallback_service(routes_static(html_directory))
         .with_state(shared_state);
 
     let address = format!("0.0.0.0:{}", &args.portnumber);
-    println!("starting TcpListener at {}", &address);
+    println!("Starting TcpListener at {}", &address);
     let listener = TcpListener::bind(address).await.unwrap();
 
     // Start the server
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .expect("Could not start server.");
 }
 
 fn routes_static(path: PathBuf) -> Router {
     Router::new().nest_service("/", get_service(ServeDir::new(path.as_os_str())))
+}
+
+#[derive(Serialize)]
+struct StatusResponse<'a> {
+    buzzer_status: &'a str,
+    server_status: &'a str,
+}
+
+async fn status_response(
+    State(state): State<AppState>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+) -> impl IntoResponse {
+    let cloned_buzzer_in_use = state.buzzer_resource_lock.clone();
+
+    let busy = match cloned_buzzer_in_use.try_lock() {
+        Ok(_) => false,
+        Err(_) => true,
+    };
+
+    println!("\'get\' request to \'/status\' from {}", addr);
+
+    Json(StatusResponse {
+        buzzer_status: if busy { "buzzer_busy" } else { "buzzer_free" },
+        server_status: "online",
+    })
 }

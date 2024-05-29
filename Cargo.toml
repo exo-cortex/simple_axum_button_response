@@ -6,15 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-argh = "0.1.12"
-axum = "0.7.5"
-chrono = "0.4.38"
-rppal = "0.17.1"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1.0.116"
-tokio = { version = "1", features = ["full"] }
-tower-http = { version = "0.5.2", features = ["fs"] }
+argh = "0.1.12" # tiny, dependency-free command line parsing
+rppal = "0.17.1" # control raspberry pi's GPIO pins
+serde = { version = "1", features = ["derive"] } # serialization and deserialization
+serde_json = "1.0.116" # JSON implementation of serde
+tokio = { version = "1", features = ["full"] } # the mighty async runtime
+axum = { version = "0.7.5", features = ["macros", "tokio"] } # the webserver library
+tower-http = { version = "0.5.2", features = ["fs"] } # http
 
 [profile.release]
-lto = true
-strip = true
+lto = true # enable link-time optimization
+strip = true # remove strings to make binary tiny
