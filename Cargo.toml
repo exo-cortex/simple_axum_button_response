@@ -1,7 +1,8 @@
 [package]
-name = "new_button_example"
+name = "buzzer_control_webserver"
 version = "0.1.0"
 edition = "2021"
+description = "a simple webserver that runs on a raspberry pi zero to serve a website that lets a client activate a buzzer."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,6 +14,9 @@ serde_json = "1.0.116" # JSON implementation of serde
 tokio = { version = "1", features = ["full"] } # the mighty async runtime
 axum = { version = "0.7.5", features = ["macros", "tokio"] } # the webserver library
 tower-http = { version = "0.5.2", features = ["fs"] } # http
+
+axum-server = { version = "0.6.0", features = ["tls-rustls"] }
+rustls = { version = "0.23.8", features = ["ring", "std", "tls12"], default-features = false }
 
 [profile.release]
 lto = true # enable link-time optimization

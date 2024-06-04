@@ -63,6 +63,17 @@ async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
             odd_on_off_buzzer_sequence(&mut buzzer_pin, &[100, 200, 100]).await;
             "buzzer_ok"
         }
+        Some("funny") => {
+            println!("buzzer received signal \'funny\'");
+            odd_on_off_buzzer_sequence(
+                &mut buzzer_pin,
+                &[
+                    50, 500, 50, 450, 50, 400, 50, 350, 50, 300, 50, 250, 50, 200, 50,
+                ],
+            )
+            .await;
+            "buzzer_ok"
+        }
         Some("silent_2000") => {
             println!("buzzer received signal \'silent_2000\'");
             tokio::time::sleep(Duration::from_millis(2000)).await;
@@ -86,7 +97,7 @@ async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
 }
 
 const MAX_DURATION_MS: u16 = 1500;
-const MAX_SEQUENCE_LENGTH: usize = 11;
+const MAX_SEQUENCE_LENGTH: usize = 17;
 
 async fn odd_on_off_buzzer_sequence(pin: &mut OutputPin, sequence: &[u16]) {
     // check if sequence is odd AND not more than MAX_SEQUENCE_LENGTH elements

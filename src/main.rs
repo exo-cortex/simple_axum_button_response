@@ -1,3 +1,13 @@
+/// this file is the `crate root`.
+/// it declares which modules belong to this crate
+/// and which elements (structs, functions, traits, constants)
+/// are used within this file.
+/// `use crate::*` are elements defined within this crate
+/// everything else is a dependency from somewhere else
+mod args;
+mod buzzer;
+
+use crate::{args::Arguments, buzzer::buzzer_signals_handler};
 use std::{net::SocketAddr, path::PathBuf, sync::Arc};
 
 use {
@@ -7,22 +17,23 @@ use {
         routing::{get, get_service, post},
         Json, Router,
     },
+    axum_server::tls_rustls::RustlsConfig,
     serde::Serialize,
-    tokio::{net::TcpListener, sync::Mutex},
+    tokio::sync::Mutex,
     tower_http::services::ServeDir,
 };
 
-mod args;
-mod buzzer;
-
-use crate::{args::Arguments, buzzer::buzzer_signals_handler};
-
+/// The state which can later be shared between
+/// route handler-functions.
 #[derive(Clone)]
 pub struct AppState {
     // maybe replace this by a semaphore
     pub buzzer_resource_lock: Arc<Mutex<()>>,
 }
 
+/// the main function is prepended with a macro which modifies
+/// the whole function in order to turn it into an async (runtime?)'
+/// I haven't dipped too deep into this one yet
 #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
     let args: Arguments = argh::from_env();
@@ -32,7 +43,17 @@ async fn main() {
         buzzer_resource_lock: Arc::new(Mutex::new(())),
     };
 
-    // setup router
+    let tls_config = RustlsConfig::from_pem_file(
+        format!("./{}/cert.pem", args.tls_directory),
+        format!("./{}/key.pem", args.tls_directory),
+    )
+    .await
+    .expect(&format!(
+        "error while loading tls certificate `cert.pem` and key `key.pem` in directory `{}`.",
+        &args.tls_directory
+    ));
+
+    // setup router with routes and their respective handler-functions
     let app = Router::new()
         .route("/send_buzzer", post(buzzer_signals_handler))
         .route("/status", get(status_response))
@@ -41,27 +62,30 @@ async fn main() {
 
     let address = format!("0.0.0.0:{}", &args.portnumber);
     println!("Starting TcpListener at {}", &address);
-    let listener = TcpListener::bind(address).await.unwrap();
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    println!("Starting TcpListener at {}", addr);
 
     // Start the server
-    axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .await
-    .expect("Could not start server.");
+    axum_server::bind_rustls(addr, tls_config)
+        .serve(app.into_make_service_with_connect_info::<SocketAddr>())
+        .await
+        .expect("Could not start server.");
 }
 
 fn routes_static(path: PathBuf) -> Router {
     Router::new().nest_service("/", get_service(ServeDir::new(path.as_os_str())))
 }
 
+/// the status-response which is serialized into json
+/// by the #[derive(Serialize)]-macro
 #[derive(Serialize)]
 struct StatusResponse<'a> {
     buzzer_status: &'a str,
     server_status: &'a str,
 }
 
+/// the function which handles status responses
 async fn status_response(
     State(state): State<AppState>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
