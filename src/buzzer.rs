@@ -5,7 +5,7 @@ use {
     tokio::time::Duration,
 };
 
-use crate::AppState;
+use crate::app::AppState;
 
 /// `buzzer_signals_handler`
 #[derive(Debug, Deserialize)]
@@ -27,20 +27,17 @@ pub async fn buzzer_signals_handler(
 
     let cloned_arc_buzzer_in_use = state.buzzer_resource_lock.clone();
 
-    let response: &str;
-    match cloned_arc_buzzer_in_use.try_lock() {
-        Ok(_) => {
-            response = handle_message(client_message.buzzer_instruction.clone()).await;
-        }
-        Err(_) => response = "buzzer_busy",
-    }
+    let response = match cloned_arc_buzzer_in_use.try_lock() {
+        Ok(_) => handle_message(&client_message.buzzer_instruction).await,
+        Err(_) => "buzzer_busy",
+    };
 
     Json(BuzzerResponse {
         buzzer_status: response.into(),
     })
 }
 
-async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
+async fn handle_message<'a>(buzzer_instruction: &Option<String>) -> &'a str {
     let mut buzzer_pin = Gpio::new()
         .expect("could not create gpio object")
         .get(3)
@@ -55,7 +52,7 @@ async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
         }
         Some("short") => {
             println!("buzzer received signal \'short\'");
-            odd_on_off_buzzer_sequence(&mut buzzer_pin, &[250]).await;
+            odd_on_off_buzzer_sequence(&mut buzzer_pin, &[350]).await;
             "buzzer_ok"
         }
         Some("double") => {
@@ -68,7 +65,7 @@ async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
             odd_on_off_buzzer_sequence(
                 &mut buzzer_pin,
                 &[
-                    50, 500, 50, 450, 50, 400, 50, 350, 50, 300, 50, 250, 50, 200, 50,
+                    200, 200, 100, 100, 100, 100, 50, 250, 50, 250, 150, 150, 150, 200, 50,
                 ],
             )
             .await;
@@ -97,12 +94,23 @@ async fn handle_message<'a>(buzzer_instruction: Option<String>) -> &'a str {
 }
 
 const MAX_DURATION_MS: u16 = 1500;
-const MAX_SEQUENCE_LENGTH: usize = 17;
+const MAX_SEQUENCE_LENGTH: usize = 32;
 
 async fn odd_on_off_buzzer_sequence(pin: &mut OutputPin, sequence: &[u16]) {
     // check if sequence is odd AND not more than MAX_SEQUENCE_LENGTH elements
     if sequence.len() & 0x1 == 0 || sequence.len() > MAX_SEQUENCE_LENGTH {
         return;
+    }
+
+    if sequence.len() == 1 {
+        let on_ms = if sequence[0] <= 1000 {
+            sequence[0]
+        } else {
+            1000
+        };
+        pin.set_high();
+        tokio::time::sleep(Duration::from_millis(on_ms as u64)).await;
+        pin.set_low();
     }
 
     for chunk in sequence.chunks(2) {

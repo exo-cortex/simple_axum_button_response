@@ -8,16 +8,22 @@ description = "a simple webserver that runs on a raspberry pi zero to serve a we
 
 [dependencies]
 argh = "0.1.12" # tiny, dependency-free command line parsing
-rppal = "0.17.1" # control raspberry pi's GPIO pins
+rppal = {version = "0.17.1", features = ["hal"] } # "raspberry pi peripheral access library"
 serde = { version = "1", features = ["derive"] } # serialization and deserialization
 serde_json = "1.0.116" # JSON implementation of serde
 tokio = { version = "1", features = ["full"] } # the mighty async runtime
 axum = { version = "0.7.5", features = ["macros", "tokio"] } # the webserver library
 tower-http = { version = "0.5.2", features = ["fs"] } # http
+chrono = "0.4.38" # datetime 
 
+# for use with tls
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
 rustls = { version = "0.23.8", features = ["ring", "std", "tls12"], default-features = false }
 
+# matrix display
+max7219 = "0.3"
+
+
 [profile.release]
-lto = true # enable link-time optimization
+# lto = true # enable link-time optimization
 strip = true # remove strings to make binary tiny

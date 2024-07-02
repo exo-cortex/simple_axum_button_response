@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
     <script src="main.js" type="text/javascript"></script>
     <title>remote control buzzer</title>
 </head>
@@ -13,19 +14,73 @@
         <div style="width: 720px; margin: 0 auto; background: #F0F0F0">
             <h1>test: client → server → GPIO → buzzer</h1>
             
+            <h2>buzzer</h2>
             <div style="padding: 0.5em">
-                <button style="padding: 0.5em" onclick="click_button_buzzer('short')">mode 1</button>
-                <button style="padding: 0.5em" onclick="click_button_buzzer('double')">mode 2</button>
-                <button style="padding: 0.5em" onclick="click_button_buzzer('funny')">funny mode</button>
-                <button style="padding: 0.5em" onclick="click_button_buzzer('silent_2000')">only <strong>simulate</strong> buzzer_busy for 2s</button>
+                <button class="special_button" style="padding: 0.5em" onclick="click_button_buzzer('double')">mode 1</button>
+                <button class="special_button" style="padding: 0.5em" onclick="click_button_buzzer('funny')">mode 2</button>
+                <button class="special_button" style="padding: 0.5em" onclick="click_button_buzzer('silent_2000')">only <strong>simulate</strong> buzzer_busy for 2s</button>
+            </div>
+            
+            <!-- <div  style="width: 50%; height: 2.5em; background: #E0E0E0; border-radius: 8px; display: flex; justify-content: center;">
+                <div style="width: 15em; align-self: center;"  id="buzzer_status">
+                    buzzer status
+                </div>
+            </div> -->
+
+            <div  style="width: 100%; background: #E0E0E0; border-radius: 8px; text-align: center">
+                <div style="width: 50%; display: inline-block;"  id="buzzer_status">
+                    buzzer status
+                </div>
             </div>
 
-            <div id="buzzer_status" style="width: 5em; align-self: center; height: 5em; background: #E0E0E0; border-radius: 8px;">
-                buzzer status
+            <h2>LED</h2>
+            <div style="padding: 0.5em">
+                <button style="padding: 0.5em" onclick="pwm_led('off')">off</button>
+                <button style="padding: 0.5em" onclick="pwm_led('on')">on</button>
+                <button style="padding: 0.5em" onclick="pwm_led('half')">half</button>
+                <button style="padding: 0.5em" onclick="pwm_led('blink_equal_250')">mode 1</button>
+                <button style="padding: 0.5em" onclick="pwm_led('breath')">mode 2</button>
+                <button style="padding: 0.5em" onclick="pwm_led('wave')">wave</button>
+                <button style="padding: 0.5em" onclick="pwm_led('wave_linear')">wave (linear)</button>
+                <button style="padding: 0.5em" onclick="pwm_led('rising_sawtooth')">rising saw</button>
+                <button style="padding: 0.5em" onclick="pwm_led('rising_sawtooth_linear')">rising saw (linear)</button>
+                <button style="padding: 0.5em" onclick="pwm_led('falling_sawtooth')">falling saw</button>
+                <button style="padding: 0.5em" onclick="pwm_led('falling_sawtooth_linear')">falling saw (linear)</button>
             </div>
+
+            <h2>8x8 Matrix Display(s)</h2>
+            <div style="padding: 0.5em">
+                <button style="padding: 0.5em" onclick="matrix_off()">off</button>
+                <button style="padding: 0.5em" onclick="matrix_on()">on</button>
+                <button style="padding: 0.5em" onclick="matrix_brightness(0)">brightness 0</button>
+                <button style="padding: 0.5em" onclick="matrix_brightness(1)">brightness 1</button>
+                <button style="padding: 0.5em" onclick="matrix_brightness(3)">brightness 3</button>
+                <button style="padding: 0.5em" onclick="matrix_brightness(7)">brightness 7</button>
+                <button style="padding: 0.5em" onclick="matrix_brightness(15)">brightness 15</button>
+                <br>
+                brightness (0 - 15)<input type="number" name="led_matrix_brightness" id="brightness_level">
+                <button onclick="matrix_brightness(parseInt(getElementById('brightness_level').value))">send</button>
+                <button style="padding: 0.5em" onclick="matrix_animation()">animation</button>
+                
+            </div>
+
+            <h2>camera</h2>
+            <div>
+                <button style="padding: 0.5em" onclick="click_button_camera('good')">take picture</button>
+                <button style="padding: 0.5em" onclick="click_button_camera('shitty')">take picture (shitty quality)</button>
+                <div style="align-content: center;">
+                    <img id="latest_image" src="img/example.jpg" alt="bild von libcamera-still" width="320px" height="240px">
+                </div>                
+            </div>
+            <div  style="width: 100%; background: #E0E0E0; border-radius: 8px; text-align: center">
+                <div style="width: 50%; display: inline-block;"  id="camera_status">
+                    camera status
+                </div>
+            </div>
+
 
             <div>
-                <button style="padding: 0.5em" onclick="get_status(true)">manually use <strong>get_status()</strong> (see log)</button>
+                <button style="padding: 0.5em" onclick="update_state(true)">manually use <strong>update_state()</strong> (see log)</button>
             </div>
     
             <div style="padding: 0.25em; text-align: left; height:fit-content; background: #E0E0E0;">

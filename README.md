@@ -30,7 +30,7 @@ Copy the files
 - `cert.pem` - your certificate
 - `favicon.svg` \
 to your Raspberry Pi Zero.\
-It is HIGHLY RECOMMENDED to put `index.html`, `main.js` and `favicon.svg` in a separate directory `html` as the `*.pem`-files! Otherwise `key.pem` can be accessed from outside! That's a **BIG NO-NO**!
+ATTENTION: put `index.html`, `main.js` and `favicon.svg` in a different directory than the `*.pem`-files! Otherwise `key.pem` can be accessed from outside! That's a **BIG NO-NO**!
 - Now you should be able to run the binary
 - Specify the location of your website files with `-f <html-directory>`, the port with `-p <port>` and the folder that holds `key.pem` and `cert.pem` by setting commandline option `-t <tls-directory>`.
 
